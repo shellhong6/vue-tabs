@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <VueTabs :list='list'>
+    <VueTabs :list='list' slider-w='80'>
       <li>
         111111<br>
         111111<br>

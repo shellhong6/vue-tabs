@@ -30,7 +30,16 @@ var isEndAnimating = false
 
 export default {
   name: 'Vue-Tabs',
-  props: ['list'],
+  props: {
+    list: {
+      type: Array,
+      required: true
+    },
+    sliderW: {
+      type: Number,
+      default: 100
+    }
+  },
   data () {
     return {
       containerW: window.screen.availWidth < 300 ? 360 : window.screen.availWidth,

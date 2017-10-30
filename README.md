@@ -25,10 +25,13 @@ npm run build --report
 
 ## 组件使用实例
 
+* list: 页签头相关的数据列表
+* slider-w: 页签头滑动条的宽度，默认为100px
+
 ```
 <template>
   <div id="app">
-    <VueTabs :list='list'>
+    <VueTabs :list='list' slider-w='80'>
       <li>
         111111<br>
         111111<br>
