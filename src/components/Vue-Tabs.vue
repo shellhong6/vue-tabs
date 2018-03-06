@@ -1,7 +1,7 @@
 <template>
   <div class="tabs-wrap">
     <ul class='tab-wrap' v-on:click='handleClick' :style='transition'>
-      <li v-for='(item, index) in list' :data-index='index'>{{item}}</li>
+      <li v-for='(item, index) in list' :data-index='index' :class='{active: (cur==index)}'>{{item}}</li>
     </ul>
     <div class="slider" :style='`transform:translatex(${sliderX}px) scale(${sliderScale});width:${sliderW}px;`'></div>
     <ul class='content-wrap' :style='`transform:translatex(${contentX}px);width:${list.length * containerW}px;`' v-on:touchstart='handleTouchStart' v-on:touchmove='handleTouchMove' v-on:touchend='handleTouchEnd' v-on:touchcancel='handleTouchCancel'>
@@ -25,6 +25,7 @@ var totalOffsetX = 0
 var isStarted = false
 var clientX = 0
 var clientY = 0
+var rafReqId = null
 
 var isEndAnimating = false
 
@@ -38,13 +39,16 @@ export default {
     sliderW: {
       type: Number,
       default: 100
+    },
+    callback: {
+      type: Function,
+      default: function () {}
     }
   },
   data () {
     return {
       containerW: window.screen.availWidth < 300 ? 360 : window.screen.availWidth,
       cur: 0,
-      sliderW: 100,
       sliderCls: '',
       animateTime: 0,
       transition: '',
@@ -70,37 +74,46 @@ export default {
   methods: {
     doAnimationFrame (interval, fn, completeFn) {
       var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame
+      var cancelRaf = window.cancelAnimationFrame
+      if (rafReqId) {
+        cancelRaf(rafReqId)
+      }
       var start = window.performance.now()
       var offset = 0
+
       var step = function (timestamp) {
         offset = timestamp - start
         if (offset <= interval) {
           fn(offset, interval)
-          raf(step)
+          rafReqId = raf(step)
         } else {
           fn(interval, interval)
           completeFn()
+          rafReqId = null
         }
       }
-      raf(step)
+      rafReqId = raf(step)
     },
     handleClick (e) {
       var index = parseInt(e.target.getAttribute('data-index'))
-      if (index === this.cur) {
+      if (isNaN(index) || index === this.cur) {
         return
       }
-      var dif = index - this.cur
-      var conDif = this.containerW * dif
-      var tabDif = this.tabItemW * dif
+      // var dif = index - this.cur
+      // var conDif = this.containerW * dif
+      var conDif = this.containerW * index - Math.abs(this.contentX)
+      // var tabDif = this.tabItemW * dif
+      var tabDif = this.tabItemW * index - Math.abs(this.sliderX)
       var sliderX = this.sliderX
       var contentX = this.contentX
       this.cur = index
+      this.callback(index)
       isEndAnimating = true
       this.doAnimationFrame(this.animateTime || END_TIME, (offset, interval) => {
         var r = offset / interval
         var rDif = r * conDif
         this.setContentX(contentX - rDif)
-        this.setSliderX(sliderX + r * tabDif)
+        this.setSliderX(sliderX + r * tabDif + this.sliderInitX)
         this.doSliderScale(rDif % this.containerW)
       }, function () {
         isEndAnimating = false
@@ -157,6 +170,7 @@ export default {
           this.addEndAnimation(-this.containerW - offset)
           this.cur++
         }
+        this.callback(this.cur)
       } else { // 回滚
         this.addEndAnimation(-offset)
       }
@@ -223,6 +237,7 @@ export default {
   li{
     list-style-type: none;
     flex: 1;
+    text-align: center;
   }
   ul{
     display: flex;
@@ -231,7 +246,7 @@ export default {
     will-change: transform;
   }
   .slider{
-    height: 3px;
+    height: 1px;
     background-color: #03A9F4;
     will-change: transform;
   }
