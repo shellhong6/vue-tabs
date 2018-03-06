@@ -60,12 +60,12 @@ export default {
   color: #2c3e50;
 }
 .red {
-  background: red;
+  background: rgba(255, 0, 0, 0.1);
 }
 .green {
-  background: green;
+  background: rgba(0, 255, 0, 0.1);
 }
 .blue {
-  background: blue;
+  background: rgba(0, 0, 255, 0.1);
 }
 </style>

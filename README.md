@@ -2,7 +2,7 @@
 
 > 一个基于vue2.x的移动端tabs切换组件
 
-[demo](./dist/index.html)
+[demo](http://blog.shellhong.com/effect/vue-tabs/index.html)
 
 
 ## Build Setup
